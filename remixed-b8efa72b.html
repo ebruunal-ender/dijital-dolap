@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Dijital Dolap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0f0e0d;--ink2:#6b6560;--ink3:#b0aba6;
+  --cream:#faf8f5;--paper:#fff;--line:#eae6e1;--line2:#d4cfc9;
+  --rose:#c9626a;--rose-bg:#fdf0f1;--rose-line:#f0c4c7;
+  --sage:#4a7c6f;--sage-bg:#eef5f3;--sage-line:#b8d8d2;
+  --amber:#b07030;--amber-bg:#fdf4e8;--amber-line:#f0d4a0;
+  --indigo:#4a5fa0;--indigo-bg:#f0f2fa;--indigo-line:#c4ccec;
+  --r:12px;--rs:8px;--rx:20px;
+}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
+.header{background:var(--paper);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:100}
+.header-inner{display:flex;align-items:center;gap:10px;padding:0 18px;height:56px;max-width:1060px;margin:0 auto}
+.logo{font-family:'Playfair Display',serif;font-size:20px;white-space:nowrap}
+.logo em{font-style:italic;color:var(--ink2)}
+.searchbox{flex:1;max-width:280px;position:relative;display:none}
+.searchbox input{width:100%;border:1px solid var(--line2);border-radius:var(--rx);padding:7px 14px 7px 32px;font-size:13px;background:var(--cream);font-family:'Inter',sans-serif;outline:none;color:var(--ink)}
+.searchbox input:focus{border-color:var(--ink);background:var(--paper)}
+.sico{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--ink3);font-size:13px}
+.hright{display:flex;align-items:center;gap:7px;margin-left:auto}
+.dsk-nav{display:none;gap:1px;background:var(--cream);border:1px solid var(--line);border-radius:var(--rx);padding:3px}
+.dsk-nav button{background:transparent;border:none;padding:5px 11px;border-radius:calc(var(--rx) - 2px);font-family:'Inter',sans-serif;font-size:12px;color:var(--ink2);cursor:pointer;white-space:nowrap}
+.dsk-nav button.on{background:var(--paper);color:var(--ink);font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.nbtn{background:transparent;border:1px solid var(--line2);border-radius:50%;width:34px;height:34px;font-size:14px;cursor:pointer;position:relative;display:flex;align-items:center;justify-content:center}
+.ndot{position:absolute;top:5px;right:5px;width:7px;height:7px;background:var(--rose);border-radius:50%;border:2px solid var(--paper);display:none}
+.ndot.on{display:block}
+.upill{display:flex;align-items:center;gap:6px;background:var(--cream);border:1px solid var(--line2);border-radius:var(--rx);padding:4px 12px 4px 7px;font-size:13px;font-weight:500;cursor:pointer}
+.uav{width:22px;height:22px;border-radius:50%;background:var(--indigo-bg);border:1px solid var(--indigo-line);display:flex;align-items:center;justify-content:center;font-size:12px}
+@media(min-width:720px){.dsk-nav{display:flex}}
+.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--paper);border-top:1px solid var(--line);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
+.bnav button{flex:1;background:transparent;border:none;padding:8px 2px 6px;font-family:'Inter',sans-serif;font-size:9px;font-weight:500;color:var(--ink3);display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer}
+.ni{font-size:18px;line-height:1}
+.bnav button.on{color:var(--rose)}
+@media(min-width:720px){.bnav{display:none}}
+.page{max-width:1060px;margin:0 auto;padding:22px 18px 110px}
+@media(min-width:720px){.page{padding:28px 22px 60px}}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+.card+.card{margin-top:13px}
+.ctitle{font-size:15px;font-weight:600;margin-bottom:4px}
+.csub{font-size:13px;color:var(--ink2);margin-bottom:16px;line-height:1.5}
+.shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.stitle{font-family:'Playfair Display',serif;font-size:21px;font-weight:600}
+.spill{font-size:12px;color:var(--ink2);background:var(--line);padding:3px 11px;border-radius:var(--rx)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+@media(max-width:540px){.fg{grid-template-columns:1fr}}
+.fi{display:flex;flex-direction:column;gap:5px}
+.fi.full{grid-column:1/-1}
+label{font-size:11px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.5px}
+input[type=text],input[type=date],input[type=number],select,textarea{border:1px solid var(--line2);border-radius:var(--rs);padding:8px 11px;font-family:'Inter',sans-serif;font-size:14px;color:var(--ink);background:var(--cream);outline:none;transition:.15s;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--ink);background:var(--paper)}
+textarea{resize:vertical;min-height:68px}
+.ff{display:flex;justify-content:flex-end;gap:8px;margin-top:18px;padding-top:16px;border-top:1px solid var(--line)}
+.pzone{border:1.5px dashed var(--line2);border-radius:var(--r);overflow:hidden;cursor:pointer;min-height:148px;display:flex;align-items:center;justify-content:center;position:relative;background:var(--cream)}
+.pzone:hover{border-color:var(--ink)}
+.pzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.pzi{text-align:center;padding:22px;pointer-events:none}
+.pzi svg{opacity:.25}
+.pzi p{font-size:14px;color:var(--ink2);margin-top:8px;font-weight:500}
+.pzi small{font-size:12px;color:var(--ink3);margin-top:3px;display:block}
+.preview{width:100%;max-height:220px;object-fit:cover;display:none}
+.btn{border:none;border-radius:var(--rs);padding:8px 16px;font-family:'Inter',sans-serif;font-size:13px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:5px;transition:.15s}
+.btn-dark{background:var(--ink);color:#fff}.btn-dark:hover{opacity:.85}
+.btn-ghost{background:transparent;border:1px solid var(--line2);color:var(--ink2)}.btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+.btn-rose{background:var(--rose-bg);color:var(--rose);border:1px solid var(--rose-line)}
+.btn-sage{background:var(--sage-bg);color:var(--sage);border:1px solid var(--sage-line)}
+.btn-indigo{background:var(--indigo-bg);color:var(--indigo);border:1px solid var(--indigo-line)}
+.btn-sm{padding:5px 12px;font-size:12px}
+.btn-ico{width:30px;height:30px;padding:0;border-radius:50%;justify-content:center}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:var(--rx);padding:4px 13px;font-size:12px;font-weight:500;font-family:'Inter',sans-serif;color:var(--ink2);cursor:pointer}
+.chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:13px}
+.cc{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:all .2s;position:relative}
+.cc:hover{box-shadow:0 6px 20px rgba(0,0,0,.08);transform:translateY(-2px)}
+.cc.stored{opacity:.6}
+.cthumb{width:100%;height:165px;object-fit:cover;display:block}
+.cph{height:165px;display:flex;align-items:center;justify-content:center;font-size:42px;background:linear-gradient(135deg,var(--cream),var(--line))}
+.cbody{padding:9px 11px 3px}
+.cname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cmeta{font-size:11px;color:var(--ink3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.clast{font-size:11px;color:var(--ink3);padding:2px 11px 3px}
+.ccpg{font-size:11px;padding:1px 11px 3px;font-weight:600}
+.wbtn{width:100%;border:none;border-top:1px solid var(--line);background:transparent;font-family:'Inter',sans-serif;font-size:11px;font-weight:500;color:var(--ink3);padding:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:4px}
+.wbtn:hover,.wbtn.worn{background:var(--sage-bg);color:var(--sage)}
+.ctag{position:absolute;top:8px;right:8px;font-size:10px;font-weight:600;padding:2px 8px;border-radius:var(--rx);border:1px solid}
+.tag-old{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-line)}
+.tag-nw{background:var(--rose-bg);color:var(--rose);border-color:var(--rose-line)}
+.tag-warn{background:var(--amber-bg);color:var(--amber);border-color:var(--amber-line)}
+.tag-stored{background:#f0f0f0;color:#888;border-color:#ddd}
+.delbtn{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.9);border:1px solid var(--line);border-radius:50%;width:26px;height:26px;display:none;align-items:center;justify-content:center;font-size:12px;cursor:pointer}
+.cc:hover .delbtn{display:flex}
+.ais{display:none;align-items:center;gap:7px;padding:9px 13px;background:var(--indigo-bg);border:1px solid var(--indigo-line);border-radius:var(--rs);margin-top:9px;font-size:13px;color:var(--indigo)}
+.dot{width:6px;height:6px;background:currentColor;border-radius:50%;animation:pulse 1.2s ease-in-out infinite;flex-shrink:0}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes pulse{0%,80%,100%{transform:scale(.6);opacity:.3}40%{transform:scale(1);opacity:1}}
+.olayout{display:grid;grid-template-columns:230px 1fr;gap:14px}
+@media(max-width:660px){.olayout{grid-template-columns:1fr}}
+.opanel,.ores{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.ores{min-height:260px}
+.ogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(105px,1fr));gap:9px;margin-bottom:12px}
+.oitem{border:1px solid var(--line);border-radius:var(--rs);overflow:hidden}
+.oitem img{width:100%;height:95px;object-fit:cover;display:block}
+.oiph{height:95px;display:flex;align-items:center;justify-content:center;font-size:26px;background:var(--cream)}
+.oilbl{font-size:11px;color:var(--ink2);padding:5px 7px;text-align:center;line-height:1.4;font-weight:500}
+.aic{background:var(--cream);border-radius:var(--rs);border-left:3px solid var(--indigo-line);padding:11px 13px;font-size:13px;line-height:1.8;margin-top:11px;color:var(--ink2)}
+.rph{display:flex;flex-direction:column;align-items:center;justify-content:center;height:200px;color:var(--ink3);text-align:center;gap:9px;font-size:14px}
+.sog{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:20px}
+.soc{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:13px}
+.socname{font-size:13px;font-weight:600}
+.sococc{font-size:11px;color:var(--ink3);margin-top:2px;margin-bottom:10px}
+.socthumbs{display:flex;gap:5px}
+.sot{width:54px;height:54px;object-fit:cover;border-radius:var(--rs);flex-shrink:0}
+.sotph{width:54px;height:54px;background:var(--cream);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:1px solid var(--line)}
+.bhero{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
+.bhero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--sage),var(--indigo))}
+.bpbar-wrap{height:7px;background:var(--cream);border-radius:99px;overflow:hidden;margin-bottom:13px;border:1px solid var(--line)}
+.bpbar{height:100%;border-radius:99px;transition:width .7s}
+.bsr{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.bst{background:var(--cream);border-radius:var(--rs);padding:11px 13px;border:1px solid var(--line)}
+.bstn{font-size:16px;font-weight:600;margin-bottom:2px}
+.bstl{font-size:11px;color:var(--ink2);font-weight:500}
+.slist{display:flex;flex-direction:column;gap:8px}
+.si{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;display:flex;align-items:center;gap:11px}
+.si.bought{opacity:.45}
+.sichk{width:21px;height:21px;border-radius:50%;border:1.5px solid var(--line2);display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;font-size:11px;font-weight:700}
+.sichk.on{background:var(--sage);border-color:var(--sage);color:#fff}
+.siinfo{flex:1;min-width:0}
+.siname{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.simeta{font-size:11px;color:var(--ink3);margin-top:2px}
+.siprice{font-size:13px;font-weight:600;flex-shrink:0}
+.pdot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:4px;vertical-align:middle}
+.ph{background:var(--rose)}.pn{background:var(--amber)}.pl{background:var(--sage)}
+.sgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:11px;margin-bottom:18px}
+.sbox{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:16px;position:relative;overflow:hidden}
+.sbox-accent{position:absolute;top:0;left:0;right:0;height:3px}
+.snum{font-family:'Playfair Display',serif;font-size:30px;font-weight:600;line-height:1;margin-bottom:4px}
+.slbl{font-size:12px;color:var(--ink2);font-weight:500}
+.catlist{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:18px}
+.catrow{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.catname{font-size:13px;color:var(--ink2);width:135px;flex-shrink:0;font-weight:500}
+.catbg{flex:1;height:6px;background:var(--cream);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.catfill{height:100%;border-radius:99px;transition:width .7s}
+.catcnt{font-size:13px;font-weight:600;width:22px;text-align:right;flex-shrink:0}
+.mback{position:fixed;inset:0;background:rgba(15,14,13,.45);z-index:200;display:flex;align-items:flex-end;justify-content:center}
+@media(min-width:580px){.mback{align-items:center;padding:20px}}
+.modal{background:var(--paper);border-radius:var(--r) var(--r) 0 0;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;padding:22px;border:1px solid var(--line)}
+@media(min-width:580px){.modal{border-radius:var(--r)}}
+.mhdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.mtitle{font-size:15px;font-weight:600}
+.mclose{background:transparent;border:1px solid var(--line);border-radius:50%;width:28px;height:28px;font-size:13px;color:var(--ink2);cursor:pointer;display:flex;align-items:center;justify-content:center}
+#toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%) translateY(10px);background:var(--ink);color:#fff;font-size:13px;font-weight:500;padding:8px 18px;border-radius:var(--rx);z-index:999;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+@media(min-width:720px){#toast{bottom:28px}}
+.empty{text-align:center;padding:50px 20px;color:var(--ink3);grid-column:1/-1}
+.ei{font-size:42px;margin-bottom:10px;opacity:.5}
+.alert{border-radius:var(--rs);padding:12px 15px;margin-bottom:13px;display:flex;gap:10px;align-items:flex-start;border:1px solid;font-size:13px}
+.alert-rose{background:var(--rose-bg);border-color:var(--rose-line);color:var(--rose)}
+.alert-amber{background:var(--amber-bg);border-color:var(--amber-line);color:var(--amber)}
+.alert-sage{background:var(--sage-bg);border-color:var(--sage-line);color:var(--sage)}
+.alert-indigo{background:var(--indigo-bg);border-color:var(--indigo-line);color:var(--indigo)}
+.toggle{position:relative;width:38px;height:21px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.tslider{position:absolute;inset:0;background:var(--line2);border-radius:99px;cursor:pointer;transition:.2s}
+.tslider::before{content:'';position:absolute;width:15px;height:15px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.toggle input:checked+.tslider{background:var(--sage)}
+.toggle input:checked+.tslider::before{transform:translateX(17px)}
+.btabs{display:flex;border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+.btab{flex:1;border:none;background:var(--cream);padding:11px;font-family:'Inter',sans-serif;font-size:12px;font-weight:500;color:var(--ink2);cursor:pointer;border-right:1px solid var(--line)}
+.btab:last-child{border-right:none}
+.btab.on{background:var(--paper);color:var(--ink)}
+.bpane{display:none}.bpane.on{display:block}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-top:12px}
+.cal-day{aspect-ratio:1;border-radius:var(--rs);display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;cursor:pointer;border:1px solid transparent;position:relative}
+.cal-day:hover{background:var(--cream);border-color:var(--line)}
+.cal-day.has-outfit{background:var(--indigo-bg);border-color:var(--indigo-line);color:var(--indigo)}
+.cal-day.today{border-color:var(--ink)!important;font-weight:700}
+.cal-day .dn{font-size:12px;line-height:1}
+.cal-day .de{font-size:9px;margin-top:1px;line-height:1}
+.cal-hdr{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px}
+.cal-hdr span{text-align:center;font-size:10px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px}
+.igrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:13px;margin-bottom:18px}
+.ic{background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:16px;position:relative;overflow:hidden}
+.ic::before{content:'';position:absolute;top:0;left:0;bottom:0;width:3px}
+.ic.rose::before{background:var(--rose)}.ic.sage::before{background:var(--sage)}.ic.amber::before{background:var(--amber)}.ic.indigo::before{background:var(--indigo)}
+.iico{font-size:22px;margin-bottom:7px}
+.ititle{font-size:13px;font-weight:600;margin-bottom:3px}
+.ibody{font-size:12px;color:var(--ink2);line-height:1.6}
+.cpwl{display:flex;flex-direction:column;gap:7px}
+.cpwi{display:flex;align-items:center;gap:11px;background:var(--paper);border:1px solid var(--line);border-radius:var(--rs);padding:10px 13px}
+.cpwr{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+/* SHARE BANNER */
+.share-hero{background:linear-gradient(135deg,var(--indigo-bg),var(--sage-bg));border:1px solid var(--indigo-line);border-radius:var(--r);padding:18px 20px;margin-bottom:18px;display:flex;align-items:center;gap:14px}
+.share-hero-ico{font-size:32px;flex-shrink:0}
+.share-hero-body{flex:1;min-width:0}
+.share-hero-title{font-size:14px;font-weight:600;margin-bottom:3px}
+.share-hero-sub{font-size:12px;color:var(--ink2);line-height:1.5}
+/* GUEST BANNER */
+.guest-banner{background:linear-gradient(135deg,#f0f4ff,#e8f5f0);border:2px solid var(--indigo-line);border-radius:var(--r);padding:22px 24px;text-align:center;margin-bottom:20px}
+.guest-banner-ico{font-size:48px;margin-bottom:10px}
+.guest-banner-title{font-family:'Playfair Display',serif;font-size:22px;font-weight:600;margin-bottom:6px}
+.guest-banner-sub{font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:16px}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">Dijital <em>Dolap</em></div>
+    <div class="searchbox" id="searchBox">
+      <span class="sico">🔍</span>
+      <input type="text" id="searchIn" placeholder="İsim, renk, marka..." oninput="onSearch(this.value)">
+    </div>
+    <div class="hright">
+      <nav class="dsk-nav" id="dskNav">
+        <button onclick="tab('add',this)" class="on">+ Ekle</button>
+        <button onclick="tab('bulk',this)">📦 Toplu</button>
+        <button onclick="tab('wardrobe',this)">Dolabım</button>
+        <button onclick="tab('outfit',this)">Kombin</button>
+        <button onclick="tab('calendar',this)">📅 Takvim</button>
+        <button onclick="tab('shopping',this)">Alışveriş</button>
+        <button onclick="tab('insights',this)">💡 Analiz</button>
+        <button onclick="tab('stats',this)">İstatistik</button>
+      </nav>
+      <button class="nbtn" onclick="openNotif()">🔔<span class="ndot" id="ndot"></span></button>
+      <div class="upill" onclick="openUser()">
+        <div class="uav" id="hav">👤</div>
+        <span id="hname">Ben</span>
+      </div>
+    </div>
+  </div>
+</header>
+<div class="page" id="page"></div>
+<nav class="bnav" id="bnav">
+  <button onclick="tab('add',this)" class="on"><span class="ni">➕</span>Ekle</button>
+  <button onclick="tab('wardrobe',this)"><span class="ni">👗</span>Dolap</button>
+  <button onclick="tab('outfit',this)"><span class="ni">✨</span>Kombin</button>
+  <button onclick="tab('calendar',this)"><span class="ni">📅</span>Takvim</button>
+  <button onclick="tab('shopping',this)"><span class="ni">🛍️</span>Alışveriş</button>
+  <button onclick="tab('insights',this)"><span class="ni">💡</span>Analiz</button>
+</nav>
+<div id="toast"></div>
+
+<script>
+// ── STORAGE ───────────────────────────────────
+const S = {
+  get: k => { try { return JSON.parse(localStorage.getItem(k)) } catch { return null } },
+  set: (k,v) => localStorage.setItem(k, JSON.stringify(v))
+};
+const KEYS = { clothes:'dd-c', outfits:'dd-o', shopping:'dd-s', user:'dd-u', log:'dd-l' };
+
+// ── CONSTANTS ─────────────────────────────────
+const CE = {'Tişört':'👕','Gömlek':'👔','Kazak / Sweatshirt':'🧥','Ceket / Mont':'🧥','Jean / Pantolon':'👖','Etek':'👗','Elbise / Tulum':'👗','Spor kıyafet':'🩱','Şort':'🩳','Ayakkabı':'👟','Çanta':'👜','Aksesuar':'🧣','Diğer':'👚'};
+const CATS = Object.keys(CE);
+const CCOLS = ['#4a5fa0','#4a7c6f','#c9626a','#b07030','#4a5fa0','#c9626a','#b07030','#4a5fa0','#4a7c6f','#b07030','#4a5fa0','#c9626a','#4a7c6f'];
+const EMOJIS = ['👤','😎','🌸','🌈','🦋','🐝','🌙','⭐','🌿','🦊','🐱','🐶','🦁','🐼','🍀','💎','🔥','🌊','🎨','🎵'];
+
+let clothes = S.get(KEYS.clothes) || [];
+let outfits = S.get(KEYS.outfits) || [];
+let shopping = S.get(KEYS.shopping) || [];
+let me = S.get(KEYS.user) || null;
+let wornLog = S.get(KEYS.log) || {};
+let curTab = 'add', curFilter = 'Hepsi', photoData = null;
+let isGuest = false; // true = shared/read-only mode
+
+// ── HELPERS ───────────────────────────────────
+const uid = () => Math.random().toString(36).slice(2,10) + Date.now().toString(36);
+const today = () => new Date().toISOString().slice(0,10);
+const currYear = () => new Date().getFullYear();
+const isOld = c => c.date && (Date.now()-new Date(c.date))/(864e5*365) >= 3;
+const daysWorn = c => c.lastWorn ? Math.floor((Date.now()-new Date(c.lastWorn))/864e5) : null;
+const wornToday = c => c.lastWorn === today();
+const wornLbl = c => { if(wornToday(c)) return '✓ Bugün'; const d=daysWorn(c); if(d===null) return 'Hiç giyilmedi'; if(d===1) return 'Dün'; return d+' gün önce'; };
+const fmtP = n => n ? Number(n).toLocaleString('tr-TR')+'₺' : '—';
+const yearBudget = () => S.get('dd-budget') || 0;
+const clothesSpent = () => clothes.filter(c=>c.buyPrice&&c.buyYear===currYear()).reduce((s,c)=>s+(Number(c.buyPrice)||0),0);
+const shopSpent = () => shopping.filter(i=>i.bought&&i.boughtYear===currYear()).reduce((s,i)=>s+(Number(i.boughtPrice)||0),0);
+const totalSpent = () => clothesSpent() + shopSpent();
+const budgetLeft = () => yearBudget() - totalSpent();
+const cpw = c => c.buyPrice && c.wornCount > 0 ? Math.round(c.buyPrice/c.wornCount) : null;
+const catSel = () => CATS.map(c=>`<option>${c}</option>`).join('');
+function save() {
+  if(isGuest) return; // misafir değişiklik yapamaz
+  S.set(KEYS.clothes,clothes); S.set(KEYS.outfits,outfits);
+  S.set(KEYS.shopping,shopping); S.set(KEYS.log,wornLog);
+}
+
+let tTimer;
+function toast(msg) {
+  const el=document.getElementById('toast'); el.textContent=msg;
+  el.classList.add('on'); clearTimeout(tTimer);
+  tTimer=setTimeout(()=>el.classList.remove('on'),2800);
+}
+
+function openModal(html) {
+  document.getElementById('modal')?.remove();
+  const el=document.createElement('div'); el.className='mback'; el.id='modal';
+  el.innerHTML=`<div class="modal">${html}</div>`;
+  el.onclick=e=>{if(e.target===el)el.remove();};
+  document.body.appendChild(el);
+}
+function closeModal() { document.getElementById('modal')?.remove(); }
+
+function budgetToast(spend) {
+  if(!yearBudget()) return;
+  const left=budgetLeft();
+  if(left<0) toast(`🚨 Bütçe aşıldı! ${fmtP(Math.abs(left))} fazla.`);
+  else if(left<yearBudget()*.15) toast(`⚠️ Bütçenin %85'i doldu! ${fmtP(left)} kaldı.`);
+  else toast(`✅ Eklendi! Bütçeden ${fmtP(spend)} düşüldü.`);
+}
+
+// ── GUEST MODE CHECK ──────────────────────────
+async function tryLoadShared() {
+  // Bu ortamda URL parametresi çalışmıyor; misafir modu kod yapıştırmayla açılır
+  return false;
+}
+
+// ── GUEST VIEW ────────────────────────────────
+function renderGuestView(owner, shareKey) {
+  const ownerName = owner?.name || 'Birinin';
+  const ownerEmoji = owner?.emoji || '👗';
+  const active = clothes.filter(c=>!c.stored);
+  const cats = {};
+  active.forEach(c=>{ cats[c.cat]=(cats[c.cat]||0)+1; });
+  const sorted = Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+
+  // Header güncelle
+  document.getElementById('hav').textContent = ownerEmoji;
+  document.getElementById('hname').textContent = ownerName;
+
+  document.getElementById('page').innerHTML = `
+    <div class="guest-banner">
+      <div class="guest-banner-ico">${ownerEmoji}</div>
+      <div class="guest-banner-title">${ownerName}'in Dijital Dolabı</div>
+      <div class="guest-banner-sub">${active.length} aktif kıyafet · ${outfits.length} kayıtlı kombin · ${clothes.filter(c=>c.stored).length} depoda</div>
+      <button class="btn btn-dark" onclick="importShared('${shareKey}')">📥 Dolabımı Bu Veriyle Başlat</button>
+    </div>
+
+    <div class="shdr"><div class="stitle">Kıyafetler</div><span class="spill">${active.length} parça</span></div>
+    <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;">
+      ${sorted.map(([cat,cnt])=>`<span style="background:var(--paper);border:1px solid var(--line);border-radius:var(--rx);padding:3px 11px;font-size:12px;color:var(--ink2);">${CE[cat]||'👚'} ${cat} <b style="color:var(--ink);">${cnt}</b></span>`).join('')}
+    </div>
+    <div class="cgrid">
+      ${active.map(item=>{
+        const d=daysWorn(item);
+        return `<div class="cc" onclick="guestDetail('${item.id}')">
+          ${item.photo?`<img class="cthumb" src="${item.photo}" alt="${item.name}">`:`<div class="cph">${CE[item.cat]||'👚'}</div>`}
+          <div class="cbody"><div class="cname">${item.name}</div><div class="cmeta">${item.cat}${item.color?' · '+item.color:''}</div></div>
+          <div class="clast">${wornLbl(item)}</div>
+        </div>`;
+      }).join('')}
+      ${active.length===0?'<div class="empty"><div class="ei">🧺</div><b style="color:var(--ink2)">Henüz kıyafet yok</b></div>':''}
+    </div>
+
+    ${outfits.length?`
+    <div class="shdr" style="margin-top:28px;"><div class="stitle">Kombinler</div><span class="spill">${outfits.length}</span></div>
+    <div class="sog">
+      ${outfits.map(o=>{
+        const items=o.clothIds.map(id=>clothes.find(c=>c.id===id)).filter(Boolean);
+        return `<div class="soc"><div class="socname">${o.name}</div><div class="sococc">${o.occasion||''}</div>
+          <div class="socthumbs">${items.map(it=>it.photo?`<img class="sot" src="${it.photo}">`:`<div class="sotph">${CE[it.cat]||'👚'}</div>`).join('')}</div>
+          ${o.aiComment?`<div style="font-size:11px;color:var(--ink2);margin-top:8px;line-height:1.5;border-top:1px solid var(--line);padding-top:7px;">${o.aiComment}</div>`:''}
+        </div>`;
+      }).join('')}
+    </div>`:''}
+
+    <div style="margin-top:24px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r);padding:18px;">
+      <div style="font-family:'Playfair Display',serif;font-size:18px;font-weight:600;margin-bottom:14px;">İstatistik</div>
+      <div class="sgrid" style="margin-bottom:16px;">
+        ${[[active.length,'Aktif'],[clothes.filter(c=>c.stored).length,'Depoda'],[outfits.length,'Kombin'],[clothes.filter(isOld).length,'3+ Yıllık']].map(([n,l],i)=>`<div class="sbox"><div class="sbox-accent" style="background:${['var(--indigo)','var(--sage)','var(--rose)','var(--amber)'][i]};"></div><div class="snum">${n}</div><div class="slbl">${l}</div></div>`).join('')}
+      </div>
+      ${sorted.length?`<div style="font-size:13px;font-weight:600;margin-bottom:11px;color:var(--ink2);">Kategoriler</div>
+      ${sorted.map(([cat,cnt],i)=>{const max=sorted[0][1];return`<div class="catrow"><div class="catname">${CE[cat]||''} ${cat}</div><div class="catbg"><div class="catfill" style="width:${Math.round(cnt/max*100)}%;background:${CCOLS[i%CCOLS.length]};"></div></div><div class="catcnt">${cnt}</div></div>`;}).join('')}`:''}
+    </div>`;
+
+  // Misafir detay modal
+  window.guestDetail = id => {
+    const item=clothes.find(c=>c.id===id); if(!item) return;
+    openModal(`
+      <div class="mhdr"><div class="mtitle">${item.name}</div><button class="mclose" onclick="closeModal()">✕</button></div>
+      ${item.photo?`<img src="${item.photo}" style="width:100%;max-height:220px;object-fit:cover;border-radius:var(--rs);margin-bottom:14px;">`:''}
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:14px;">
+        ${[['KATEGORİ',item.cat],['RENK',item.color||'—'],['MARKA',item.brand||'—'],['MEVSİM',item.season||'4 mevsim'],['GİYİLME',(item.wornCount||0)+' kez'],['SON GİYİLME',daysWorn(item)===null?'hiç':daysWorn(item)===0?'bugün':daysWorn(item)+' gün önce']].map(([l,v])=>`<div><div style="font-size:10px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;">${l}</div><div style="font-weight:500;">${v}</div></div>`).join('')}
+      </div>
+      ${item.notes?`<div style="background:var(--cream);border-radius:var(--rs);padding:10px 12px;font-size:13px;color:var(--ink2);margin-top:13px;border:1px solid var(--line);">${item.notes}</div>`:''}
+    `);
+  };
+}
+
+// Misafir görünümünden "kendi dolabına kopyala"
+window.importShared = () => {
+  openModal(`
+    <div class="mhdr"><div class="mtitle">📥 Dolabı Kopyala</div><button class="mclose" onclick="closeModal()">✕</button></div>
+    <div class="alert alert-amber" style="margin-bottom:13px;">
+      <span>⚠️</span>
+      <div><b>Mevcut veriler silinecek</b><div style="margin-top:2px;font-size:12px;">Kendi dolabın varsa üzerine yazılır.</div></div>
+    </div>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:16px;line-height:1.6;">Bu dolabı kendi uygulamana kopyalarsın.</p>
+    <div class="ff" style="margin-top:0;padding-top:0;border:none;">
+      <button class="btn btn-ghost" onclick="closeModal()">İptal</button>
+      <button class="btn btn-dark" onclick="doImportShared()">✅ Evet, kopyala</button>
+    </div>
+  `);
+};
+
+window.doImportShared = () => {
+  S.set(KEYS.clothes, clothes);
+  S.set(KEYS.outfits, outfits);
+  S.set(KEYS.shopping, shopping);
+  S.set(KEYS.log, wornLog);
+  isGuest = false;
+  closeModal();
+  document.getElementById('bnav').style.display='flex';
+  document.getElementById('dskNav').style.display='flex';
+  toast(`✅ ${clothes.length} kıyafet kopyalandı!`);
+  tab('wardrobe', document.querySelectorAll('.dsk-nav button')[2]);
+};
+
+// ── SHARE PANEL (sahip için) ──────────────────
+// Fotoğrafı paylaşım için küçük boyuta sıkıştır
+function compressForShare(b64, maxPx=200, quality=0.30) {
+  return new Promise(resolve => {
+    if(!b64) { resolve(null); return; }
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if(w > maxPx || h > maxPx) {
+        if(w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
+        else { w = Math.round(w * maxPx / h); h = maxPx; }
+      }
+      const c = document.createElement('canvas');
+      c.width = w; c.height = h;
+      c.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(c.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = () => resolve(null);
+    img.src = b64;
+  });
+}
+
+// 6 haneli büyük harf + rakam kod üret
+function genShareCode() {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  return Array.from(crypto.getRandomValues(new Uint8Array(6)))
+    .map(b => chars[b % chars.length]).join('');
+}
+
+async function renderSharePanel() {
+  openModal(`
+    <div class="mhdr"><div class="mtitle">📤 Dolabı Paylaş</div><button class="mclose" onclick="closeModal()">✕</button></div>
+    <div style="display:flex;align-items:center;gap:9px;padding:24px 0;color:var(--ink2);font-size:13px;justify-content:center;">
+      <div class="dot" style="background:var(--indigo)"></div>
+      <div class="dot" style="background:var(--indigo)"></div>
+      <div class="dot" style="background:var(--indigo)"></div>
+      <span>Fotoğraflar sıkıştırılıyor...</span>
+    </div>
+  `);
+
+  try {
+    // Fotoğrafları sıkıştır
+    const compressed = await Promise.all(
+      clothes.map(async c => ({
+        ...c,
+        photo: c.photo ? await compressForShare(c.photo) : null
+      }))
+    );
+
+    const payload = JSON.stringify({ v:1, clothes: compressed, outfits, shopping, wornLog, me });
+    const kb = Math.round(new Blob([payload]).size / 1024);
+    const photoCount = compressed.filter(c => c.photo).length;
+
+    // Mevcut kodu koru ya da yeni üret
+    let code = S.get('dd-sharecode');
+    if(!code) { code = genShareCode(); S.set('dd-sharecode', code); }
+
+    // Buluta kaydet (shared=true → herkes okuyabilir)
+    const result = await window.storage.set('dolap:' + code, payload, true);
+    if(!result) throw new Error('Kayıt başarısız');
+
+    document.querySelector('#modal .modal').innerHTML = `
+      <div class="mhdr"><div class="mtitle">📤 Dolabı Paylaş</div><button class="mclose" onclick="closeModal()">✕</button></div>
+      <div class="alert alert-sage" style="margin-bottom:16px;">
+        <span>✅</span>
+        <div><b>${clothes.length} kıyafet · ${photoCount} fotoğraf buluta kaydedildi</b>
+        <div style="font-size:12px;margin-top:2px;">~${kb} KB</div></div>
+      </div>
+      <p style="font-size:13px;color:var(--ink2);margin-bottom:14px;line-height:1.7;">
+        Bu <b>6 haneli kodu</b> WhatsApp'ta gönder.<br>
+        Karşı taraf uygulamada <b>"Kodu Yükle"</b> → kodu girer → dolabın açılır.
+      </p>
+      <div style="background:var(--indigo-bg);border:2px solid var(--indigo-line);border-radius:var(--r);padding:18px;text-align:center;margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:600;color:var(--indigo);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Paylaşım Kodu</div>
+        <div style="font-family:'Playfair Display',serif;font-size:40px;font-weight:600;letter-spacing:8px;color:var(--ink);">${code}</div>
+      </div>
+      <div class="ff" style="margin-top:0;padding-top:0;border:none;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-ghost" onclick="closeModal()">Kapat</button>
+        <button class="btn btn-ghost" onclick="renewShareCode()" style="font-size:12px;">🔄 Yeni kod üret</button>
+        <button class="btn btn-dark" onclick="
+          navigator.clipboard.writeText('${code}')
+            .then(()=>toast('📋 Kod kopyalandı: ${code}'))
+            .catch(()=>toast('Kod: ${code}'));
+        ">📋 Kodu Kopyala</button>
+      </div>
+      <div style="font-size:11px;color:var(--ink3);margin-top:11px;line-height:1.6;">
+        💡 Dolabında değişiklik yaparsan tekrar "Paylaş" butonuna bas — aynı kod güncellenir.
+      </div>
+    `;
+  } catch(e) {
+    document.querySelector('#modal .modal').innerHTML = `
+      <div class="mhdr"><div class="mtitle">📤 Dolabı Paylaş</div><button class="mclose" onclick="closeModal()">✕</button></div>
+      <div class="alert alert-rose"><span>❌</span><div><b>Kayıt başarısız</b><div style="font-size:12px;margin-top:2px;">${e.message||'Tekrar dene'}</div></div></div>
+      <div class="ff"><button class="btn btn-ghost" onclick="closeModal()">Kapat</button><button class="btn btn-dark" onclick="closeModal();renderSharePanel()">↻ Tekrar dene</button></div>
+    `;
+  }
+}
+
+window.renewShareCode = async () => {
+  const code = genShareCode();
+  S.set('dd-sharecode', code);
+  toast('🔄 Yeni kod üretiliyor...');
+  closeModal();
+  await renderSharePanel();
+};
+
+// ── NAV ───────────────────────────────────────
+function tab(t, btn) {
+  if(isGuest) return;
+  curTab = t;
+  document.querySelectorAll('.dsk-nav button,.bnav button').forEach(b=>b.classList.remove('on'));
+  document.querySelectorAll(`[onclick*="tab('${t}'"]`).forEach(b=>b.classList.add('on'));
+  document.getElementById('searchBox').style.display = t==='wardrobe' ? 'block' : 'none';
+  document.getElementById('searchIn').value = '';
+  if(t==='wardrobe') curFilter='Hepsi';
+  ({add:renderAdd,bulk:renderBulk,wardrobe:renderWardrobe,outfit:renderOutfit,calendar:renderCalendar,shopping:renderShopping,insights:renderInsights,stats:renderStats})[t]?.();
+}
+
+// ── ONBOARD ───────────────────────────────────
+function showOnboard() {
+  openModal(`
+    <div class="mhdr"><div class="mtitle">Merhaba 👋</div></div>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:18px;line-height:1.6;">Başlamadan önce kendini tanıt. Şifre yok, hesap yok!</p>
+    <div class="fi" style="margin-bottom:13px;"><label>Görünen adın</label><input type="text" id="obN" placeholder="Örn: Ayşe" maxlength="24"></div>
+    <div class="fi" style="margin-bottom:18px;"><label>Avatar seç</label><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:5px;" id="obE"></div></div>
+    <button class="btn btn-dark" style="width:100%;justify-content:center;" onclick="finishOnboard()">Başla →</button>
+  `);
+  let sel='👤';
+  const grid=document.getElementById('obE');
+  EMOJIS.forEach(em=>{
+    const b=document.createElement('button');
+    b.style.cssText='font-size:21px;width:38px;height:38px;border-radius:50%;border:2px solid transparent;background:var(--cream);cursor:pointer;';
+    b.textContent=em;
+    if(em===sel)b.style.borderColor='var(--ink)';
+    b.onclick=()=>{grid.querySelectorAll('button').forEach(x=>x.style.borderColor='transparent');b.style.borderColor='var(--ink)';sel=em;};
+    grid.appendChild(b);
+  });
+  window.finishOnboard=()=>{
+    const n=document.getElementById('obN').value.trim();
+    if(!n){toast('⚠️ İsim gerekli!');return;}
+    me={name:n,emoji:sel}; S.set(KEYS.user,me);
+    document.getElementById('hname').textContent=n;
+    document.getElementById('hav').textContent=sel;
+    closeModal();
+  };
+}
+
+async function init() {
+  // Önce paylaşım modunu kontrol et
+  const shared = await tryLoadShared();
+  if(shared) return;
+
+  // Normal mod
+  if(me){ document.getElementById('hname').textContent=me.name; document.getElementById('hav').textContent=me.emoji; }
+  tab('add', document.querySelector('.dsk-nav button'));
+  checkNotif();
+  if(!me) setTimeout(showOnboard, 400);
+}
+
+// ── ADD TAB ───────────────────────────────────
+function shareBanner() {
+  return `<div class="share-hero">
+    <div class="share-hero-ico">🔗</div>
+    <div class="share-hero-body">
+      <div class="share-hero-title">Dolabını paylaş</div>
+      <div class="share-hero-sub">Bir link oluştur — arkadaşın tıklasın, fotoğraflarınla birlikte görsün.</div>
+    </div>
+    <button class="btn btn-indigo btn-sm" onclick="renderSharePanel()">Link oluştur</button>
+  </div>`;
+}
+
+function renderAdd() {
+  document.getElementById('page').innerHTML = `
+    ${shareBanner()}
+    <div class="card">
+      <div class="ctitle">Yeni kıyafet ekle</div>
+      <div class="csub">Fotoğraf ekleyince AI otomatik tanır ve alanları doldurur.</div>
+      <div class="fg">
+        <div class="fi full">
+          <div class="pzone" onclick="document.getElementById('fi').click()">
+            <input type="file" id="fi" accept="image/*" onchange="loadAndDetect(event)">
+            <img class="preview" id="prev">
+            <div class="pzi" id="pph">
+              <svg width="36" height="36" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <p>Fotoğraf ekle</p><small>✨ AI otomatik tanır</small>
+            </div>
+          </div>
+          <div class="ais" id="aiSt"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>AI kıyafeti tanıyor...</span></div>
+        </div>
+        <div class="fi"><label>Kıyafet adı *</label><input type="text" id="fn" placeholder="Beyaz oversize tişört"></div>
+        <div class="fi"><label>Kategori *</label><select id="fc"><option value="">Seç...</option>${catSel()}</select></div>
+        <div class="fi"><label>Renk</label><input type="text" id="fr" placeholder="Lacivert, çizgili..."></div>
+        <div class="fi"><label>Marka</label><input type="text" id="fm" placeholder="Zara, Mango..."></div>
+        <div class="fi"><label>Alım tarihi *</label><input type="date" id="fd"></div>
+        <div class="fi"><label>Alış fiyatı (₺)</label><input type="number" id="fbp" placeholder="Bütçeye otomatik işlenir"></div>
+        <div class="fi"><label>Mevsim</label><select id="fs"><option value="">4 mevsim</option><option>İlkbahar / Yaz</option><option>Sonbahar / Kış</option></select></div>
+        <div class="fi"><label>Depolama</label><select id="fst"><option value="">Aktif (dolabımda)</option><option value="stored">Sandıkta / Depoda</option></select></div>
+        <div class="fi full"><label>Notlar</label><textarea id="fno" placeholder="Kombinler, bakım önerileri..."></textarea></div>
+      </div>
+      <div class="ff">
+        <button class="btn btn-ghost" onclick="resetAdd()">Temizle</button>
+        <button class="btn btn-dark" onclick="submitAdd()">Dolaba ekle →</button>
+      </div>
+    </div>`;
+  photoData=null;
+}
+
+window.resetAdd=()=>{
+  ['fn','fr','fm','fd','fno','fbp'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  ['fc','fs','fst'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const p=document.getElementById('prev');if(p){p.style.display='none';p.src='';}
+  const ph=document.getElementById('pph');if(ph)ph.style.display='block';
+  photoData=null;
+};
+
+window.submitAdd=()=>{
+  const name=document.getElementById('fn')?.value.trim();
+  const cat=document.getElementById('fc')?.value;
+  const date=document.getElementById('fd')?.value;
+  if(!name||!cat||!date){toast('⚠️ Ad, kategori ve tarih zorunlu!');return;}
+  const bp=document.getElementById('fbp')?.value;
+  const buyYear=bp&&date?new Date(date).getFullYear():null;
+  const stored=document.getElementById('fst')?.value==='stored';
+  clothes.unshift({id:uid(),name,cat,date,photo:photoData,
+    color:document.getElementById('fr')?.value.trim()||'',
+    brand:document.getElementById('fm')?.value.trim()||'',
+    season:document.getElementById('fs')?.value||'',
+    notes:document.getElementById('fno')?.value.trim()||'',
+    buyPrice:bp?parseFloat(bp):null,buyYear,stored,
+    lastWorn:null,wornCount:0,addedBy:me?.name||''});
+  save();
+  if(bp&&buyYear===currYear())budgetToast(parseFloat(bp)); else toast('✅ Dolaba eklendi!');
+  resetAdd();
+};
+
+// ── IMAGE + AI ─────────────────────────────────
+function resizeImg(file,max=800,q=0.75){
+  return new Promise(resolve=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        let w=img.width,h=img.height;
+        if(w>max||h>max){if(w>h){h=Math.round(h*max/w);w=max;}else{w=Math.round(w*max/h);h=max;}}
+        const c=document.createElement('canvas');c.width=w;c.height=h;
+        c.getContext('2d').drawImage(img,0,0,w,h);
+        resolve(c.toDataURL('image/jpeg',q));
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function analyzeImg(b64){
+  const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:300,
+      messages:[{role:'user',content:[
+        {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64.split(',')[1]}},
+        {type:'text',text:`Bu kıyafeti analiz et. SADECE JSON formatında yanıt ver:\n{"isim":"...","kategori":"...","renk":"...","marka":"...","mevsim":""}\nKategori: ${CATS.join(', ')}\nMarka bilinmiyorsa boş. Mevsim: "İlkbahar / Yaz", "Sonbahar / Kış" veya boş.`}
+      ]}]})});
+  const d=await r.json();
+  return JSON.parse(d.content?.map(x=>x.text||'').join('').replace(/```json|```/g,'').trim());
+}
+
+window.loadAndDetect=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  const b64=await resizeImg(f);photoData=b64;
+  const prev=document.getElementById('prev');
+  if(prev){prev.src=b64;prev.style.display='block';}
+  document.getElementById('pph').style.display='none';
+  const st=document.getElementById('aiSt');if(st)st.style.display='flex';
+  try{
+    const p=await analyzeImg(b64);
+    const fn=document.getElementById('fn');if(fn&&!fn.value)fn.value=p?.isim||'';
+    const fc=document.getElementById('fc');if(fc){const m=CATS.find(c=>c.toLowerCase().includes((p?.kategori||'').toLowerCase()));if(m)fc.value=m;}
+    const fr=document.getElementById('fr');if(fr&&!fr.value)fr.value=p?.renk||'';
+    const fm=document.getElementById('fm');if(fm&&!fm.value)fm.value=p?.marka||'';
+    const fs=document.getElementById('fs');if(fs&&p?.mevsim)fs.value=p.mevsim;
+    toast('✨ AI kıyafeti tanıdı!');
+  }catch{toast('⚠️ AI tanıyamadı, manuel doldur');}
+  finally{if(st)st.style.display='none';}
+};
+
+// ── EDIT ──────────────────────────────────────
+window.editCloth=id=>{
+  const item=clothes.find(c=>c.id===id);if(!item)return;
+  openModal(`
+    <div class="mhdr"><div class="mtitle">✏️ Düzenle</div><button class="mclose" onclick="closeModal()">✕</button></div>
+    ${item.photo?`<img src="${item.photo}" style="width:100%;max-height:160px;object-fit:cover;border-radius:var(--rs);margin-bottom:14px;">`:''}
+    <div class="fg">
+      <div class="fi"><label>Kıyafet adı</label><input type="text" id="en" value="${item.name}"></div>
+      <div class="fi"><label>Kategori</label><select id="ec"><option value="">Seç...</option>${catSel()}</select></div>
+      <div class="fi"><label>Renk</label><input type="text" id="er" value="${item.color||''}"></div>
+      <div class="fi"><label>Marka</label><input type="text" id="em" value="${item.brand||''}"></div>
+      <div class="fi"><label>Alım tarihi</label><input type="date" id="ed" value="${item.date||''}"></div>
+      <div class="fi"><label>Alış fiyatı (₺)</label><input type="number" id="ebp" value="${item.buyPrice||''}"></div>
+      <div class="fi"><label>Mevsim</label><select id="es"><option value="">4 mevsim</option><option>İlkbahar / Yaz</option><option>Sonbahar / Kış</option></select></div>
+      <div class="fi full"><label>Notlar</label><textarea id="eno">${item.notes||''}</textarea></div>
+    </div>
+    <div class="ff"><button class="btn btn-ghost" onclick="closeModal()">İptal</button><button class="btn btn-dark" onclick="saveEdit('${id}')">Kaydet</button></div>
+  `);
+  document.getElementById('ec').value=item.cat||'';
+  document.getElementById('es').value=item.season||'';
+};
+window.saveEdit=id=>{
+  const item=clothes.find(c=>c.id===id);if(!item)return;
+  const name=document.getElementById('en')?.value.trim();if(!name){toast('⚠️ Ad gerekli!');return;}
+  const bp=document.getElementById('ebp')?.value;
+  const date=document.getElementById('ed')?.value||item.date;
+  item.name=name;item.cat=document.getElementById('ec')?.value||item.cat;
+  item.color=document.getElementById('er')?.value.trim();item.brand=document.getElementById('em')?.value.trim();
+  item.date=date;item.season=document.getElementById('es')?.value||'';item.notes=document.getElementById('eno')?.value.trim();
+  item.buyPrice=bp?parseFloat(bp):null;item.buyYear=item.buyPrice&&date?new Date(date).getFullYear():null;
+  save();toast('✅ Güncellendi!');closeModal();
+  if(curTab==='wardrobe')renderGrid(filterC(clothes,curFilter));
+};
+
+// ── BULK ──────────────────────────────────────
+let aiPD=null,qParsed=[],csvParsed=[];
+function renderBulk(){
+  document.getElementById('page').innerHTML=`
+    <div class="shdr"><div class="stitle">Toplu Ekle</div></div>
+    <div class="btabs">
+      <button class="btab on" onclick="showBP('ai',this)">📸 Fotoğraf AI</button>
+      <button class="btab" onclick="showBP('quick',this)">✍️ Hızlı Liste</button>
+      <button class="btab" onclick="showBP('csv',this)">📊 CSV</button>
+    </div>
+    <div class="bpane on" id="bp-ai"><div class="card">
+      <div class="ctitle">Fotoğraf çek — AI tanısın</div>
+      <div class="csub">Fotoğraf seç, AI kategori ve rengi doldursun.</div>
+      <div class="pzone" onclick="document.getElementById('aifi').click()" style="min-height:110px;">
+        <input type="file" id="aifi" accept="image/*" onchange="aiDetect(event)">
+        <img class="preview" id="aiprev">
+        <div class="pzi" id="aiph"><svg width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg><p>Fotoğraf seç</p></div>
+      </div>
+      <div class="ais" id="aiLd"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Analiz ediliyor...</span></div>
+      <div id="aiRes" style="display:none;margin-top:14px;">
+        <div class="fg">
+          <div class="fi"><label>Ad</label><input type="text" id="ain"></div>
+          <div class="fi"><label>Kategori</label><select id="aic"><option value="">Seç...</option>${catSel()}</select></div>
+          <div class="fi"><label>Renk</label><input type="text" id="air"></div>
+          <div class="fi"><label>Marka</label><input type="text" id="aim"></div>
+          <div class="fi"><label>Alım tarihi</label><input type="date" id="aid"></div>
+          <div class="fi"><label>Fiyat (₺)</label><input type="number" id="aibp"></div>
+        </div>
+        <div class="ff"><button class="btn btn-dark" onclick="aiConfirm()">✅ Dolaba ekle</button></div>
+      </div>
+    </div></div>
+    <div class="bpane" id="bp-quick"><div class="card">
+      <div class="ctitle">Hızlı liste</div>
+      <div class="csub">Her satıra bir kıyafet: <code style="background:var(--cream);padding:2px 6px;border-radius:4px;font-size:12px;">isim, kategori, renk, marka, tarih, fiyat</code></div>
+      <textarea id="quickList" style="min-height:110px;font-size:13px;font-family:monospace;" placeholder="Her satıra bir kıyafet..."></textarea>
+      <div id="qprev" style="display:none;margin-top:12px;"></div>
+      <div class="ff"><button class="btn btn-ghost" onclick="previewQuick()">👁 Önizle</button><button class="btn btn-dark" id="qaBtn" style="display:none;" onclick="confirmQuick()">✅ Hepsini ekle</button></div>
+    </div></div>
+    <div class="bpane" id="bp-csv"><div class="card">
+      <div class="ctitle">CSV içe aktar</div>
+      <div class="csub">Şablonu kopyala → CSV olarak kaydet → yükle.</div>
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+        <button class="btn btn-ghost btn-sm" onclick="showTemplate()">📋 Şablonu göster</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('csvfi').click()">📂 CSV yükle</button>
+        <input type="file" id="csvfi" accept=".csv" style="display:none;" onchange="importCSV(event)">
+      </div>
+      <div id="csvprev" style="display:none;"></div>
+      <div id="csvfoot" style="display:none;" class="ff"><button class="btn btn-dark" id="csvBtn" onclick="confirmCSV()">✅ Ekle</button></div>
+    </div></div>`;
+  aiPD=null;qParsed=[];csvParsed=[];
+}
+window.showBP=(id,btn)=>{document.querySelectorAll('.btab').forEach(b=>b.classList.remove('on'));document.querySelectorAll('.bpane').forEach(p=>p.classList.remove('on'));btn.classList.add('on');document.getElementById('bp-'+id).classList.add('on');};
+window.showTemplate=()=>{
+  const txt=`isim,kategori,renk,marka,tarih,alis_fiyati,mevsim,notlar\nBeyaz tişört,Tişört,Beyaz,Zara,2023-06-01,299,İlkbahar / Yaz,\nLacivert jean,Jean / Pantolon,Lacivert,Mango,2022-09-15,599,,\nSiyah ceket,Ceket / Mont,Siyah,,2021-11-20,,Sonbahar / Kış,Favori ceketim`;
+  openModal(`<div class="mhdr"><div class="mtitle">📋 CSV Şablonu</div><button class="mclose" onclick="closeModal()">✕</button></div>
+    <textarea id="tmpl" style="width:100%;height:130px;font-family:monospace;font-size:11px;background:var(--cream);border:1px solid var(--line);border-radius:var(--rs);padding:9px;resize:none;" readonly>${txt}</textarea>
+    <div style="margin-top:9px;background:var(--cream);border-radius:var(--rs);padding:9px 12px;font-size:11px;color:var(--ink2);border:1px solid var(--line);line-height:1.8;"><b>Kategoriler:</b> ${CATS.join(' · ')}</div>
+    <div class="ff" style="margin-top:13px;padding-top:13px;"><button class="btn btn-dark" onclick="document.getElementById('tmpl').select();document.execCommand('copy');toast('📋 Kopyalandı!');">Tümünü kopyala</button></div>`);
+};
+window.aiDetect=async e=>{
+  const f=e.target.files[0];if(!f)return;
+  const b64=await resizeImg(f);aiPD=b64;
+  const prev=document.getElementById('aiprev');if(prev){prev.src=b64;prev.style.display='block';}
+  document.getElementById('aiph').style.display='none';
+  const ld=document.getElementById('aiLd');ld.style.display='flex';document.getElementById('aiRes').style.display='none';
+  try{
+    const p=await analyzeImg(b64);ld.style.display='none';document.getElementById('aiRes').style.display='block';
+    document.getElementById('ain').value=p?.isim||'';document.getElementById('air').value=p?.renk||'';document.getElementById('aim').value=p?.marka||'';
+    const aic=document.getElementById('aic');const m=CATS.find(c=>c.toLowerCase().includes((p?.kategori||'').toLowerCase()));if(m)aic.value=m;
+    toast('✨ Tespit hazır!');
+  }catch{ld.style.display='none';document.getElementById('aiRes').style.display='block';toast('⚠️ AI tanıyamadı');}
+};
+window.aiConfirm=()=>{
+  const name=document.getElementById('ain')?.value.trim(),cat=document.getElementById('aic')?.value;
+  if(!name||!cat){toast('⚠️ Ad ve kategori gerekli!');return;}
+  const date=document.getElementById('aid')?.value||today(),bp=document.getElementById('aibp')?.value;
+  clothes.unshift({id:uid(),name,cat,date,photo:aiPD,color:document.getElementById('air')?.value.trim()||'',brand:document.getElementById('aim')?.value.trim()||'',season:'',notes:'',buyPrice:bp?parseFloat(bp):null,buyYear:bp?new Date(date).getFullYear():null,stored:false,lastWorn:null,wornCount:0,addedBy:me?.name||''});
+  save();toast('✅ Eklendi!');aiPD=null;
+  const prev=document.getElementById('aiprev');if(prev){prev.style.display='none';prev.src='';}
+  document.getElementById('aiph').style.display='block';document.getElementById('aiRes').style.display='none';document.getElementById('aifi').value='';
+};
+window.previewQuick=()=>{
+  const lines=document.getElementById('quickList').value.split('\n').map(l=>l.trim()).filter(Boolean);
+  if(!lines.length){toast('⚠️ Liste boş!');return;}
+  qParsed=lines.map(line=>{const p=line.split(',').map(x=>x.trim());const cat=CATS.find(c=>c.toLowerCase().includes((p[1]||'').toLowerCase()))||'Diğer';const bp=p[5]?parseFloat(p[5]):null,date=p[4]||today();return{id:uid(),name:p[0]||'İsimsiz',cat,color:p[2]||'',brand:p[3]||'',date,buyPrice:bp,buyYear:bp?new Date(date).getFullYear():null,season:'',notes:'',photo:null,stored:false,lastWorn:null,wornCount:0,addedBy:me?.name||''};});
+  const pv=document.getElementById('qprev');pv.style.display='block';
+  pv.innerHTML=`<div style="font-size:13px;font-weight:600;margin-bottom:8px;color:var(--ink2);">${qParsed.length} kıyafet:</div><div style="display:flex;flex-direction:column;gap:6px;max-height:190px;overflow-y:auto;">${qParsed.map((item,i)=>`<div style="display:flex;align-items:center;gap:9px;background:var(--cream);border-radius:var(--rs);padding:8px 11px;font-size:13px;border:1px solid var(--line);"><span>${CE[item.cat]||'👚'}</span><div style="flex:1;min-width:0;"><div style="font-weight:600;">${item.name}</div><div style="font-size:11px;color:var(--ink3);">${item.cat}${item.color?' · '+item.color:''}${item.buyPrice?' · '+fmtP(item.buyPrice):''}</div></div><button onclick="qParsed.splice(${i},1);previewQuick()" style="background:transparent;border:none;font-size:13px;cursor:pointer;color:var(--ink3);">✕</button></div>`).join('')}</div>`;
+  document.getElementById('qaBtn').style.display='inline-flex';
+};
+window.confirmQuick=()=>{if(!qParsed.length)return;clothes.unshift(...qParsed);save();toast(`✅ ${qParsed.length} kıyafet eklendi!`);document.getElementById('quickList').value='';document.getElementById('qprev').style.display='none';document.getElementById('qaBtn').style.display='none';qParsed=[];};
+window.importCSV=e=>{
+  const f=e.target.files[0];if(!f)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    const lines=ev.target.result.split('\n').map(l=>l.trim()).filter(Boolean);
+    const start=lines[0].toLowerCase().includes('isim')?1:0;
+    csvParsed=lines.slice(start).map(line=>{const p=line.match(/(".*?"|[^,]+|(?<=,)(?=,)|^(?=,)|(?<=,)$)/g)||[];const clean=p.map(x=>x.replace(/^"|"$/g,'').trim());const cat=CATS.find(c=>c.toLowerCase().includes((clean[1]||'').toLowerCase()))||'Diğer';const bp=clean[5]?parseFloat(clean[5]):null,date=clean[4]||today();return{id:uid(),name:clean[0]||'',cat,color:clean[2]||'',brand:clean[3]||'',date,buyPrice:bp,buyYear:bp?new Date(date).getFullYear():null,season:clean[6]||'',notes:clean[7]||'',photo:null,stored:false,lastWorn:null,wornCount:0,addedBy:me?.name||''};}).filter(i=>i.name);
+    const pv=document.getElementById('csvprev');pv.style.display='block';
+    pv.innerHTML=`<div style="font-size:13px;font-weight:600;margin-bottom:8px;">${csvParsed.length} kıyafet okundu:</div><div style="overflow-x:auto;border:1px solid var(--line);border-radius:var(--rs);"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr style="background:var(--cream);">${['İsim','Kategori','Renk','Fiyat'].map(h=>`<th style="padding:7px 10px;text-align:left;color:var(--ink2);font-weight:600;">${h}</th>`).join('')}</tr></thead><tbody>${csvParsed.map(item=>`<tr style="border-top:1px solid var(--line);"><td style="padding:6px 10px;">${CE[item.cat]||'👚'} ${item.name}</td><td style="padding:6px 10px;color:var(--ink2);">${item.cat}</td><td style="padding:6px 10px;color:var(--ink2);">${item.color||'—'}</td><td style="padding:6px 10px;color:var(--ink2);">${fmtP(item.buyPrice)}</td></tr>`).join('')}</tbody></table></div>`;
+    document.getElementById('csvfoot').style.display='flex';
+    document.getElementById('csvBtn').textContent=`✅ ${csvParsed.length} kıyafeti ekle`;
+  };
+  reader.readAsText(f,'UTF-8');
+};
+window.confirmCSV=()=>{if(!csvParsed.length)return;clothes.unshift(...csvParsed);save();toast(`✅ ${csvParsed.length} kıyafet eklendi!`);document.getElementById('csvprev').style.display='none';document.getElementById('csvfoot').style.display='none';document.getElementById('csvfi').value='';csvParsed=[];};
+
+// ── WARDROBE ──────────────────────────────────
+function renderWardrobe(){
+  const active=clothes.filter(c=>!c.stored);
+  const cats=[...new Set(active.map(c=>c.cat))];
+  const filters=['Hepsi','Eski (3+ yıl)','30+ gün giyilmedi','Sandıkta',...cats];
+  const items=filterC(clothes,curFilter);
+  document.getElementById('page').innerHTML=`
+    <div class="shdr"><div class="stitle">Dolabım</div><span class="spill" id="cpill">${active.length} aktif${clothes.filter(c=>c.stored).length?' · '+clothes.filter(c=>c.stored).length+' depoda':''}</span></div>
+    <div class="chips" id="fbar">${filters.map(f=>`<button class="chip${curFilter===f?' on':''}" onclick="setFilter('${f}',this)">${f}</button>`).join('')}</div>
+    <div class="cgrid" id="grid"></div>`;
+  renderGrid(items);
+}
+function filterC(list,f){
+  if(f==='Eski (3+ yıl)')return list.filter(c=>!c.stored&&isOld(c));
+  if(f==='30+ gün giyilmedi')return list.filter(c=>!c.stored&&(daysWorn(c)===null||daysWorn(c)>=30));
+  if(f==='Sandıkta')return list.filter(c=>c.stored);
+  if(f!=='Hepsi')return list.filter(c=>!c.stored&&c.cat===f);
+  return list;
+}
+window.setFilter=(f,btn)=>{curFilter=f;document.querySelectorAll('#fbar .chip').forEach(b=>b.classList.remove('on'));btn.classList.add('on');const items=filterC(clothes,f);document.getElementById('cpill').textContent=items.length+' parça';renderGrid(items);};
+window.onSearch=q=>{if(!q.trim()){renderGrid(filterC(clothes,curFilter));return;}const qq=q.toLowerCase();renderGrid(clothes.filter(c=>[c.name,c.color,c.brand,c.cat,c.notes].some(x=>x&&x.toLowerCase().includes(qq))));};
+function renderGrid(items){
+  const g=document.getElementById('grid');if(!g)return;
+  if(!items.length){g.innerHTML=`<div class="empty"><div class="ei">🧺</div><b style="color:var(--ink2)">Kıyafet bulunamadı</b></div>`;return;}
+  g.innerHTML=items.map(item=>{
+    const old=isOld(item),d=daysWorn(item),wt=wornToday(item);
+    const yr=item.date?new Date(item.date).getFullYear():'';
+    const cpwVal=cpw(item);
+    let tag='';
+    if(item.stored)tag='<span class="ctag tag-stored">DEPODA</span>';
+    else if(old)tag='<span class="ctag tag-old">3+ YIL</span>';
+    else if(d===null)tag='<span class="ctag tag-nw">GİYİLMEDİ</span>';
+    else if(d>=30)tag=`<span class="ctag tag-warn">${d}G</span>`;
+    return `<div class="cc${item.stored?' stored':''}" onclick="detail('${item.id}')">
+      <button class="delbtn" onclick="event.stopPropagation();delC('${item.id}')">🗑</button>
+      ${tag}
+      ${item.photo?`<img class="cthumb" src="${item.photo}" alt="${item.name}">`:`<div class="cph">${CE[item.cat]||'👚'}</div>`}
+      <div class="cbody"><div class="cname">${item.name}</div><div class="cmeta">${item.cat}${item.color?' · '+item.color:''}${yr?' · '+yr:''}</div></div>
+      <div class="clast">${item.stored?'📦 Depoda':wornLbl(item)}</div>
+      ${cpwVal?`<div class="ccpg" style="color:${cpwVal<50?'var(--sage)':cpwVal<200?'var(--amber)':'var(--rose)'}">Giyim başı ${fmtP(cpwVal)}</div>`:''}
+      ${!item.stored?`<button class="wbtn${wt?' worn':''}" onclick="event.stopPropagation();markW('${item.id}')">${wt?'✓ Giyildi — geri al':'+ Bugün giydim'}</button>`:'<div style="height:7px;"></div>'}
+    </div>`;
+  }).join('');
+}
+window.markW=id=>{
+  const c=clothes.find(x=>x.id===id);if(!c)return;
+  const t=today();
+  if(c.lastWorn===t){c.lastWorn=c._pw||null;c.wornCount=Math.max(0,(c.wornCount||0)-1);if(wornLog[t])wornLog[t]=wornLog[t].filter(x=>x!==id);}
+  else{c._pw=c.lastWorn;c.lastWorn=t;c.wornCount=(c.wornCount||0)+1;if(!wornLog[t])wornLog[t]=[];if(!wornLog[t].includes(id))wornLog[t].push(id);}
+  save();if(curTab==='wardrobe')renderGrid(filterC(clothes,curFilter));toast('✅ Güncellendi!');
+};
+window.delC=id=>{if(!confirm('Silmek istiyor musun?'))return;clothes=clothes.filter(c=>c.id!==id);save();renderWardrobe();toast('🗑 Silindi');};
+window.toggleStore=id=>{const c=clothes.find(x=>x.id===id);if(!c)return;c.stored=!c.stored;save();toast(c.stored?'📦 Depoya kaldırıldı':'📬 Dolaba alındı');if(curTab==='wardrobe')renderWardrobe();};
+window.detail=id=>{
+  const item=clothes.find(c=>c.id===id);if(!item)return;
+  const age=item.date?Math.floor((Date.now()-new Date(item.date))/864e5/365):'?';
+  const d=daysWorn(item),cpwVal=cpw(item);
+  openModal(`
+    <div class="mhdr"><div class="mtitle">${item.name}</div><button class="mclose" onclick="closeModal()">✕</button></div>
+    ${item.photo?`<img src="${item.photo}" style="width:100%;max-height:220px;object-fit:cover;border-radius:var(--rs);margin-bottom:14px;">`:''}
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:14px;margin-bottom:13px;">
+      ${[['KATEGORİ',item.cat],['RENK',item.color||'—'],['MARKA',item.brand||'—'],['YAŞ',age+' yıl'],['MEVSİM',item.season||'4 mevsim'],['GİYİLME',(item.wornCount||0)+' kez'],['ALIŞ FİYATI',fmtP(item.buyPrice)],['GİYİM BAŞI',cpwVal?fmtP(cpwVal):'—'],['SON GİYİLME',d===null?'hiç giyilmedi':d===0?'bugün':d+' gün önce'],['DEPOLAMA',item.stored?'📦 Depoda':'Aktif']].map(([l,v])=>`<div><div style="font-size:10px;font-weight:600;color:var(--ink3);text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px;">${l}</div><div style="font-weight:500;">${v}</div></div>`).join('')}
+    </div>
+    ${item.notes?`<div style="background:var(--cream);border-radius:var(--rs);padding:10px 12px;font-size:13px;color:var(--ink2);margin-bottom:13px;border:1px solid var(--line);">${item.notes}</div>`:''}
+    <div class="ff" style="padding-top:11px;margin-top:0;flex-wrap:wrap;gap:7px;">
+      <button class="btn btn-ghost btn-sm" onclick="toggleStore('${id}');closeModal()">${item.stored?'📬 Dolaba al':'📦 Depoya kaldır'}</button>
+      <button class="btn btn-ghost btn-sm" onclick="closeModal();editCloth('${id}')">✏️ Düzenle</button>
+      <button class="btn btn-rose btn-sm" onclick="delC('${id}');closeModal()">Sil</button>
+      ${!item.stored?`<button class="btn btn-dark btn-sm" onclick="markW('${id}');closeModal()">Bugün giydim</button>`:''}
+    </div>
+  `);
+};
+
+// ── OUTFIT ────────────────────────────────────
+function renderOutfit(){
+  const saved=outfits.length?`
+    <div class="shdr" style="margin-top:24px;"><div class="stitle">Kayıtlı Kombinler</div><span class="spill">${outfits.length}</span></div>
+    <div class="sog">${outfits.map(o=>{const items=o.clothIds.map(id=>clothes.find(c=>c.id===id)).filter(Boolean);return`<div class="soc"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:4px;"><div><div class="socname">${o.name}</div><div class="sococc">${o.occasion||''}</div></div><button class="btn btn-ico btn-ghost" onclick="delO('${o.id}')" style="font-size:12px;">🗑</button></div><div class="socthumbs">${items.map(it=>it.photo?`<img class="sot" src="${it.photo}">`:`<div class="sotph">${CE[it.cat]||'👚'}</div>`).join('')}</div></div>`;}).join('')}</div>`:'';
+  document.getElementById('page').innerHTML=`
+    <div class="olayout">
+      <div class="opanel">
+        <div class="ctitle" style="margin-bottom:4px;">Bugün ne giysem?</div>
+        <div class="csub" style="margin-bottom:14px;">AI dolabından kombin seçsin.</div>
+        <div class="fi" style="margin-bottom:10px;"><label>Okkazyon</label>
+          <select id="oocc"><option value="günlük">Günlük</option><option value="iş">İş / Ofis</option><option value="spor">Spor</option><option value="gece">Gece çıkışı</option><option value="özel">Özel gün</option></select>
+        </div>
+        <div class="fi" style="margin-bottom:10px;"><label>Mevsim</label>
+          <select id="oseas"><option>Mevsimine uygun</option><option>Yaz</option><option>Kış</option></select>
+        </div>
+        <div class="fi" style="margin-bottom:14px;"><label>Hava durumu</label>
+          <input type="text" id="owx" placeholder="Örn: 8°C, yağmurlu">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;">
+          <button class="btn btn-dark" style="justify-content:center;" onclick="getOutfit(false)">✨ Kombin öner</button>
+          <button class="btn btn-ghost" style="justify-content:center;" onclick="getWeather()">🌤️ Hava durumunu al</button>
+          <button class="btn btn-ghost" style="justify-content:center;" onclick="getOutfit(true)">🕐 Eski kıyafetlerle</button>
+        </div>
+      </div>
+      <div class="ores" id="ores"><div class="rph"><div style="font-size:40px;opacity:.35;">✨</div><span>Okkazyon seç ve kombin iste</span></div></div>
+    </div>
+    ${saved}`;
+}
+window.getWeather=async()=>{
+  if(!navigator.geolocation){toast('❌ Konum desteklenmiyor');return;}
+  toast('📍 Konum alınıyor...');
+  navigator.geolocation.getCurrentPosition(async pos=>{
+    try{const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current=temperature_2m,weathercode&timezone=auto`);const d=await r.json();const temp=Math.round(d.current.temperature_2m);const codes={0:'güneşli',1:'az bulutlu',2:'parçalı bulutlu',3:'bulutlu',51:'hafif yağmurlu',61:'yağmurlu',71:'karlı',80:'sağanak',95:'fırtınalı'};const desc=codes[d.current.weathercode]||'değişken';const el=document.getElementById('owx');if(el)el.value=`${temp}°C, ${desc}`;toast(`🌤️ ${temp}°C ${desc}`);}catch{toast('❌ Hava durumu alınamadı');}
+  },()=>toast('❌ Konum izni verilmedi'));
+};
+window.delO=id=>{outfits=outfits.filter(o=>o.id!==id);save();renderOutfit();};
+window.getOutfit=async preferOld=>{
+  const active=clothes.filter(c=>!c.stored);
+  if(active.length<2){toast('⚠️ En az 2 aktif kıyafet gerekli!');return;}
+  const occ=document.getElementById('oocc').value,seas=document.getElementById('oseas').value,wx=document.getElementById('owx')?.value||'';
+  const res=document.getElementById('ores');
+  res.innerHTML='<div style="display:flex;align-items:center;gap:7px;color:var(--ink2);font-size:13px;padding:40px;justify-content:center;"><div class="dot" style="background:var(--indigo)"></div><div class="dot" style="background:var(--indigo)"></div><div class="dot" style="background:var(--indigo)"></div><span>Dolabın inceleniyor...</span></div>';
+  const list=active.map(c=>`ID:${c.id}|${c.name}|${c.cat}${c.color?'|'+c.color:''}${c.season?'|'+c.season:''}|${isOld(c)?'ESKİ':'yeni'}|${daysWorn(c)===null?'hiç giyilmedi':daysWorn(c)+' gün önce'}`).join('\n');
+  const prompt=`Sen moda stilistisin. Dolap:\n${list}\n\nOkkazyon: ${occ}, Mevsim: ${seas}${wx?', Hava: '+wx:''}\n${preferOld?'ZORUNLU: ESKİ veya uzun süredir giyilmemiş parça olmalı.':''}\n\nSadece şu formatta yanıt ver:\n\nKOMBIN:\n[ID] | [ID] | [ID]\n\nYORUM:\n[2-3 cümle Türkçe stilist yorumu]`;
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:500,messages:[{role:'user',content:prompt}]})});
+    const data=await r.json();const text=data.content?.map(c=>c.text||'').join('')||'';
+    const km=text.match(/KOMBIN:\n(.+)/),ym=text.match(/YORUM:\n([\s\S]+)/);
+    const ids=km?km[1].split('|').map(s=>s.trim()).filter(Boolean):[];
+    const matched=ids.map(id=>clothes.find(c=>c.id===id)).filter(Boolean);
+    const yorum=ym?ym[1].trim():'';
+    if(!matched.length){res.innerHTML='<div class="rph">😕 Kombin oluşturulamadı.</div>';return;}
+    const clothIds=matched.map(i=>i.id);
+    res.innerHTML=`<div style="font-size:14px;font-weight:600;margin-bottom:12px;">${occ.charAt(0).toUpperCase()+occ.slice(1)} kombini</div>
+      <div class="ogrid">${matched.map(item=>`<div class="oitem">${item.photo?`<img src="${item.photo}" alt="${item.name}">`:`<div class="oiph">${CE[item.cat]||'👚'}</div>`}<div class="oilbl">${item.name}</div></div>`).join('')}</div>
+      ${yorum?`<div class="aic">${yorum}</div>`:''}
+      <div style="display:flex;gap:7px;flex-wrap:wrap;margin-top:13px;">
+        <button class="btn btn-sage btn-sm" onclick="saveOutfit(${JSON.stringify(clothIds)},'${occ}',\`${yorum.replace(/`/g,"'")}\`)">💾 Kaydet</button>
+        <button class="btn btn-ghost btn-sm" onclick="bulkWorn(${JSON.stringify(clothIds)})">✓ Bugün giydim</button>
+        <button class="btn btn-ghost btn-sm" onclick="getOutfit(false)">↻ Yenile</button>
+      </div>`;
+  }catch{res.innerHTML='<div class="rph">⚠️ Hata, tekrar dene.</div>';}
+};
+window.saveOutfit=(clothIds,occasion,aiComment)=>{const name=prompt('Kombine isim ver:',occasion+' kombini');if(!name)return;outfits.unshift({id:uid(),name,occasion,clothIds,aiComment,date:today()});save();toast('💾 Kaydedildi!');renderOutfit();};
+window.bulkWorn=ids=>{ids.forEach(id=>markW(id));toast(`✅ ${ids.length} kıyafet işaretlendi!`);};
+
+// ── CALENDAR ──────────────────────────────────
+function renderCalendar(){
+  const now=new Date();let cy=now.getFullYear(),cm=now.getMonth();
+  function draw(){
+    const firstDay=new Date(cy,cm,1).getDay(),dim=new Date(cy,cm+1,0).getDate();
+    const mName=new Date(cy,cm,1).toLocaleDateString('tr-TR',{month:'long',year:'numeric'});
+    const todayStr=today();const days=['Pzt','Sal','Çar','Per','Cum','Cmt','Paz'];
+    const offset=(firstDay+6)%7;let cells='';
+    for(let i=0;i<offset;i++)cells+=`<div></div>`;
+    for(let d=1;d<=dim;d++){const ds=`${cy}-${String(cm+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;const log=wornLog[ds]||[];const isT=ds===todayStr;const emojis=log.map(id=>{const c=clothes.find(x=>x.id===id);return c?CE[c.cat]||'👚':''}).filter(Boolean).slice(0,3).join('');cells+=`<div class="cal-day${log.length?' has-outfit':''}${isT?' today':''}" onclick="showDay('${ds}')"><div class="dn">${d}</div>${emojis?`<div class="de">${emojis}</div>`:''}</div>`;}
+    document.getElementById('calW').innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;"><button class="btn btn-ghost btn-sm" onclick="prevM()">‹ Önceki</button><div style="font-size:14px;font-weight:600;">${mName}</div><button class="btn btn-ghost btn-sm" onclick="nextM()">Sonraki ›</button></div><div class="cal-hdr">${days.map(d=>`<span>${d}</span>`).join('')}</div><div class="cal-grid">${cells}</div><div style="margin-top:14px;display:flex;gap:11px;font-size:12px;color:var(--ink2);"><span><span style="display:inline-block;width:9px;height:9px;background:var(--indigo-bg);border:1px solid var(--indigo-line);border-radius:2px;margin-right:4px;"></span>Giyildi</span><span><span style="display:inline-block;width:9px;height:9px;border:1.5px solid var(--ink);border-radius:2px;margin-right:4px;"></span>Bugün</span></div>`;
+  }
+  document.getElementById('page').innerHTML=`<div class="shdr"><div class="stitle">Giyim Takvimi</div></div><div class="card"><div id="calW"></div></div>`;
+  draw();
+  window.prevM=()=>{cm--;if(cm<0){cm=11;cy--;}draw();};
+  window.nextM=()=>{cm++;if(cm>11){cm=0;cy++;}draw();};
+  window.showDay=ds=>{const log=wornLog[ds]||[];const label=new Date(ds+'T12:00:00').toLocaleDateString('tr-TR',{weekday:'long',day:'numeric',month:'long'});const items=log.map(id=>clothes.find(c=>c.id===id)).filter(Boolean);openModal(`<div class="mhdr"><div class="mtitle">📅 ${label}</div><button class="mclose" onclick="closeModal()">✕</button></div>${items.length?`<div style="display:flex;flex-direction:column;gap:8px;">${items.map(item=>`<div style="display:flex;align-items:center;gap:10px;background:var(--cream);border-radius:var(--rs);padding:9px 12px;border:1px solid var(--line);">${item.photo?`<img src="${item.photo}" style="width:42px;height:42px;object-fit:cover;border-radius:var(--rs);flex-shrink:0;">`:`<div style="width:42px;height:42px;background:var(--line);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">${CE[item.cat]||'👚'}</div>`}<div><div style="font-size:13px;font-weight:600;">${item.name}</div><div style="font-size:11px;color:var(--ink3);">${item.cat}${item.color?' · '+item.color:''}</div></div></div>`).join('')}</div>`:`<div style="text-align:center;padding:28px;color:var(--ink3);font-size:14px;">Bu gün için kayıt yok.</div>`}`);};
+}
+
+// ── SHOPPING ──────────────────────────────────
+function budgetBar(){
+  if(!yearBudget())return'';
+  const spent=totalSpent(),left=budgetLeft(),pct=Math.min(100,Math.round(spent/yearBudget()*100));
+  const bc=left<0?'var(--rose)':pct>80?'var(--amber)':'var(--sage)';
+  return`<div class="bhero"><div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;"><div><div style="font-family:'Playfair Display',serif;font-size:32px;font-weight:600;line-height:1;">${fmtP(spent)}</div><div style="font-size:12px;color:var(--ink2);margin-top:3px;font-weight:500;">Bu yıl harcandı</div></div><div style="text-align:right;font-size:13px;color:var(--ink2);">Yıllık bütçe<br><b style="font-size:15px;color:var(--ink);">${fmtP(yearBudget())}</b> <span onclick="setBudget()" style="cursor:pointer;font-size:12px;color:var(--ink3);">✏️</span></div></div><div class="bpbar-wrap"><div class="bpbar" style="width:${pct}%;background:${bc};"></div></div><div class="bsr"><div class="bst"><div class="bstn" style="color:var(--indigo);">${fmtP(clothesSpent())}</div><div class="bstl">Kıyafetler</div></div><div class="bst"><div class="bstn" style="color:var(--sage);">${fmtP(shopSpent())}</div><div class="bstl">Alışveriş</div></div><div class="bst"><div class="bstn" style="color:${left<0?'var(--rose)':'var(--ink)'};">${fmtP(Math.abs(left))}</div><div class="bstl">${left<0?'Aşım':'Kalan'}</div></div></div></div>`;
+}
+function renderShopping(){
+  const pend=shopping.filter(i=>!i.bought),done=shopping.filter(i=>i.bought);
+  const est=pend.reduce((s,i)=>s+(Number(i.price)||0),0);
+  const siH=item=>`<div class="si${item.bought?' bought':''}"><div class="sichk${item.bought?' on':''}" onclick="toggleBuy('${item.id}')">${item.bought?'✓':''}</div><div class="siinfo"><div class="siname"><span class="pdot ${item.priority==='high'?'ph':item.priority==='low'?'pl':'pn'}"></span>${item.name}</div><div class="simeta">${item.cat||''}${item.notes?' · '+item.notes:''}</div></div><div class="siprice">${item.bought?fmtP(item.boughtPrice):fmtP(item.price)}</div><button class="btn btn-ico btn-ghost" onclick="delS('${item.id}')" style="font-size:12px;">🗑</button></div>`;
+  document.getElementById('page').innerHTML=`
+    ${!yearBudget()?`<div class="alert alert-sage"><span>💡</span><div><b>Yıllık bütçe belirle</b><div style="margin-top:2px;">Tüm harcamaları tek yerden takip et.</div></div><button class="btn btn-sage btn-sm" style="margin-left:auto;flex-shrink:0;" onclick="setBudget()">Belirle</button></div>`:budgetBar()}
+    <div class="card" style="margin-bottom:15px;">
+      <div class="ctitle" style="margin-bottom:11px;">Listeye ekle</div>
+      <div class="fg" style="gap:10px;">
+        <div class="fi full"><label>Ürün adı</label><input type="text" id="sn" placeholder="Beyaz sneaker"></div>
+        <div class="fi"><label>Kategori</label><select id="sc"><option value="">Seç...</option>${catSel()}</select></div>
+        <div class="fi"><label>Tahmini fiyat (₺)</label><input type="number" id="sp" placeholder="0"></div>
+        <div class="fi"><label>Alış fiyatı (₺)</label><input type="number" id="sbp" placeholder="Zaten aldıysam"></div>
+        <div class="fi"><label>Öncelik</label><select id="spr"><option value="normal">Normal</option><option value="high">🔴 Yüksek</option><option value="low">🟢 Düşük</option></select></div>
+        <div class="fi"><label>Not</label><input type="text" id="sno" placeholder="İsteğe bağlı"></div>
+      </div>
+      <div class="ff"><button class="btn btn-dark" onclick="addS()">+ Ekle</button></div>
+    </div>
+    <div class="shdr"><div class="stitle" style="font-size:18px;">Bekleyen</div><span class="spill">${pend.length} · est. ${fmtP(est)}</span></div>
+    <div class="slist">${pend.length?pend.map(siH).join(''):'<div class="empty"><div class="ei">🛍️</div><b style="color:var(--ink2)">Liste boş</b></div>'}</div>
+    ${done.length?`<div class="shdr" style="margin-top:20px;"><div class="stitle" style="font-size:18px;">Alınanlar</div><span class="spill">${done.length}</span></div><div class="slist">${done.map(siH).join('')}</div>`:''}`;
+}
+window.setBudget=()=>{const v=prompt(`${currYear()} yılı bütçesi (₺):`,yearBudget()||'');if(v===null)return;const n=parseFloat(v);if(isNaN(n)||n<0){toast('⚠️ Geçerli miktar gir');return;}S.set('dd-budget',n);renderShopping();toast(n?`✅ Bütçe ${fmtP(n)} ayarlandı`:'Bütçe kaldırıldı');};
+window.addS=()=>{const name=document.getElementById('sn')?.value.trim();if(!name){toast('⚠️ Ürün adı gerekli!');return;}const bp=document.getElementById('sbp')?.value;shopping.unshift({id:uid(),name,cat:document.getElementById('sc')?.value||'',price:document.getElementById('sp')?.value||null,priority:document.getElementById('spr')?.value||'normal',notes:document.getElementById('sno')?.value.trim()||'',bought:!!bp,boughtPrice:bp?parseFloat(bp):null,boughtYear:bp?currYear():null});save();toast('✅ Listeye eklendi!');renderShopping();};
+window.toggleBuy=id=>{const i=shopping.find(x=>x.id===id);if(!i||i.bought)return;const p=prompt('Kaça aldın? (₺)');if(p===null)return;i.bought=true;i.boughtPrice=p?parseFloat(p):null;i.boughtYear=currYear();save();toast('🛍️ Alındı!');renderShopping();};
+window.delS=id=>{shopping=shopping.filter(i=>i.id!==id);save();renderShopping();};
+
+// ── INSIGHTS ──────────────────────────────────
+async function renderInsights(){
+  const active=clothes.filter(c=>!c.stored);
+  const unworn=active.filter(c=>{const d=daysWorn(c);return d===null||d>=30;});
+  const withPrice=active.filter(c=>c.buyPrice&&c.wornCount>0).sort((a,b)=>cpw(a)-cpw(b));
+  const mostWorn=active.filter(c=>c.wornCount>0).sort((a,b)=>b.wornCount-a.wornCount).slice(0,3);
+  const rotPct=active.length?Math.round((active.filter(c=>c.wornCount>0).length/active.length)*100):0;
+  const totalSp=clothes.reduce((s,c)=>s+(Number(c.buyPrice)||0),0);
+  const totalW=clothes.reduce((s,c)=>s+(c.wornCount||0),0);
+  const avgCpw=totalSp&&totalW?Math.round(totalSp/totalW):null;
+  document.getElementById('page').innerHTML=`
+    <div class="shdr"><div class="stitle">Dolap Analizi</div></div>
+    <div class="igrid">
+      <div class="ic rose"><div class="iico">😴</div><div class="ititle">${unworn.length} kıyafet uyuyor</div><div class="ibody">30+ gündür giyilmemiş.</div></div>
+      <div class="ic sage"><div class="iico">🔄</div><div class="ititle">%${rotPct} rotasyon</div><div class="ibody">${active.filter(c=>c.wornCount>0).length}/${active.length} kıyafet en az bir kez giyildi.</div></div>
+      ${avgCpw?`<div class="ic indigo"><div class="iico">💰</div><div class="ititle">Giyim başı ${fmtP(avgCpw)}</div><div class="ibody">Ortalama maliyet.</div></div>`:''}
+    </div>
+    ${mostWorn.length?`<div class="card" style="margin-bottom:14px;"><div class="ctitle">⭐ En çok giyilenler</div><div style="display:flex;flex-direction:column;gap:7px;margin-top:11px;">${mostWorn.map((item,i)=>`<div style="display:flex;align-items:center;gap:11px;padding:8px 11px;background:var(--cream);border-radius:var(--rs);border:1px solid var(--line);"><div style="width:24px;height:24px;border-radius:50%;background:${['var(--amber-bg)','var(--line)','var(--line)'][i]};border:1px solid ${['var(--amber-line)','var(--line2)','var(--line2)'][i]};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:${['var(--amber)','var(--ink2)','var(--ink3)'][i]};flex-shrink:0;">${i+1}</div>${item.photo?`<img src="${item.photo}" style="width:38px;height:38px;object-fit:cover;border-radius:var(--rs);flex-shrink:0;">`:`<div style="width:38px;height:38px;background:var(--line);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${CE[item.cat]||'👚'}</div>`}<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;">${item.name}</div><div style="font-size:11px;color:var(--ink3);">${item.wornCount} kez</div></div></div>`).join('')}</div></div>`:''}
+    ${withPrice.length?`<div class="card"><div class="ctitle">💸 Maliyet-Per-Giyim</div><div class="cpwl" style="margin-top:13px;">${withPrice.slice(0,8).map((item,i)=>{const v=cpw(item);const col=v<50?'var(--sage)':v<150?'var(--amber)':'var(--rose)';const bg=v<50?'var(--sage-bg)':v<150?'var(--amber-bg)':'var(--rose-bg)';return`<div class="cpwi"><div class="cpwr" style="background:${bg};color:${col};">${i+1}</div>${item.photo?`<img src="${item.photo}" style="width:38px;height:38px;object-fit:cover;border-radius:var(--rs);flex-shrink:0;">`:`<div style="width:38px;height:38px;background:var(--cream);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;">${CE[item.cat]||'👚'}</div>`}<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;">${item.name}</div><div style="font-size:11px;color:var(--ink3);">${fmtP(item.buyPrice)} ÷ ${item.wornCount} giyim</div></div><div style="font-size:14px;font-weight:700;color:${col};flex-shrink:0;">${fmtP(v)}</div></div>`;}).join('')}</div></div>`:''}
+    <div class="card"><div class="ctitle">🎯 Kapsül Gardırop Analizi</div><div class="csub">AI dolabını analiz etsin.</div><button class="btn btn-dark" onclick="getCapsule()" id="capBtn">✨ Analizi başlat</button><div id="capRes"></div></div>`;
+}
+window.getCapsule=async()=>{
+  const btn=document.getElementById('capBtn'),res=document.getElementById('capRes');
+  btn.disabled=true;btn.textContent='Analiz ediliyor...';
+  res.innerHTML='<div style="display:flex;align-items:center;gap:7px;color:var(--ink2);font-size:13px;padding:18px 0;"><div class="dot" style="background:var(--indigo)"></div><div class="dot" style="background:var(--indigo)"></div><div class="dot" style="background:var(--indigo)"></div></div>';
+  const list=clothes.filter(c=>!c.stored).map(c=>`${c.name}|${c.cat}${c.color?'|'+c.color:''}${c.season?'|'+c.season:''}|${c.wornCount||0}x`).join('\n');
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:600,messages:[{role:'user',content:`Moda uzmanı olarak bu dolabı analiz et:\n${list}\n\nTürkçe, kısa ve pratik:\n1. Tahmini kombin sayısı\n2. Eksik 3 temel parça\n3. Fazlalık/benzer parçalar\n4. En işlevsel 10 parça önerisi`}]})});
+    const d=await r.json();const txt=d.content?.map(x=>x.text||'').join('')||'';
+    res.innerHTML=`<div style="background:var(--cream);border-radius:var(--rs);border-left:3px solid var(--indigo-line);padding:13px 15px;font-size:13px;line-height:1.9;color:var(--ink2);margin-top:14px;">${txt.replace(/\n/g,'<br>').replace(/\*\*(.*?)\*\*/g,'<b>$1</b>')}</div>`;
+  }catch{res.innerHTML='<div style="color:var(--rose);font-size:13px;padding:12px 0;">⚠️ Analiz başarısız.</div>';}
+  finally{btn.disabled=false;btn.textContent='✨ Analizi başlat';}
+};
+
+// ── STATS ─────────────────────────────────────
+function renderStats(){
+  const yr=currYear();
+  const cats={};clothes.forEach(c=>{cats[c.cat]=(cats[c.cat]||0)+1;});
+  const sorted=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const max=sorted[0]?.[1]||1;
+  const unworn=clothes.filter(c=>!c.stored&&(daysWorn(c)===null||daysWorn(c)>=30));
+  const spent=totalSpent();
+  const cols=['var(--indigo)','var(--rose)','var(--sage)','var(--amber)','var(--indigo)','var(--sage)','var(--rose)'];
+  const stats=[[clothes.length,'Toplam parça'],[clothes.filter(c=>!c.stored).length,'Aktif'],[clothes.filter(c=>c.stored).length,'Depoda'],[clothes.filter(isOld).length,'3+ yıllık'],[clothes.filter(c=>c.date&&new Date(c.date).getFullYear()===yr).length,'Bu yıl alınan'],[unworn.length,'30+ gün giyilmedi'],[outfits.length,'Kayıtlı kombin']];
+  document.getElementById('page').innerHTML=`
+    ${yearBudget()?`<div class="card" style="margin-bottom:15px;"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;"><div class="ctitle">Bütçe ${yr}</div><button class="btn btn-ghost btn-sm" onclick="setBudget()">✏️ Düzenle</button></div><div style="display:flex;justify-content:space-between;margin-bottom:9px;font-size:14px;"><span style="color:var(--ink2);">Harcanan</span><b>${fmtP(spent)} / ${fmtP(yearBudget())}</b></div><div class="bpbar-wrap"><div class="bpbar" style="width:${Math.min(100,Math.round(spent/yearBudget()*100))}%;background:${budgetLeft()<0?'var(--rose)':budgetLeft()<yearBudget()*.2?'var(--amber)':'var(--sage)'};"></div></div></div>`:''}
+    <div class="sgrid">${stats.map(([n,l],i)=>`<div class="sbox"><div class="sbox-accent" style="background:${cols[i]};"></div><div class="snum">${n}</div><div class="slbl">${l}</div></div>`).join('')}</div>
+    <div class="catlist"><div style="font-size:15px;font-weight:600;margin-bottom:14px;">Kategoriye göre dağılım</div>${sorted.length?sorted.map(([cat,cnt],i)=>`<div class="catrow"><div class="catname">${CE[cat]||''} ${cat}</div><div class="catbg"><div class="catfill" style="width:${Math.round(cnt/max*100)}%;background:${CCOLS[i%CCOLS.length]};"></div></div><div class="catcnt">${cnt}</div></div>`).join(''):'<p style="color:var(--ink3);font-size:13px;">Kıyafet yok.</p>'}</div>`;
+}
+
+// ── USER & NOTIF ──────────────────────────────
+function checkNotif(){
+  const u=clothes.filter(c=>!c.stored&&(daysWorn(c)===null||daysWorn(c)>=30));
+  document.getElementById('ndot').classList.toggle('on',u.length>0);
+}
+window.openNotif=()=>{
+  const u=clothes.filter(c=>!c.stored&&(daysWorn(c)===null||daysWorn(c)>=30));
+  openModal(`<div class="mhdr"><div class="mtitle">🔔 Bildirimler</div><button class="mclose" onclick="closeModal()">✕</button></div>${u.length?`<div class="alert alert-amber"><span>😴</span><div><b>${u.length} kıyafet 30+ gündür giyilmedi</b><ul style="margin-top:6px;padding-left:15px;font-size:13px;">${u.slice(0,5).map(c=>`<li>${c.name}</li>`).join('')}${u.length>5?`<li style="color:var(--ink3);">+${u.length-5} tane daha</li>`:''}</ul></div></div>`:'<div style="text-align:center;padding:20px;color:var(--ink2);font-size:14px;">✅ Her şey yolunda!</div>'}`);
+};
+window.openUser=()=>{
+  if(isGuest){ toast('👁 Görüntüleme modundasın'); return; }
+  openModal(`
+    <div class="mhdr"><div class="mtitle">${me?.emoji||'👤'} ${me?.name||'Kullanıcı'}</div><button class="mclose" onclick="closeModal()">✕</button></div>
+    <div style="font-size:13px;color:var(--ink2);margin-bottom:16px;">${clothes.length} kıyafet · ${outfits.length} kombin · ${shopping.filter(i=>!i.bought).length} alışveriş</div>
+    <button class="btn btn-indigo" style="width:100%;justify-content:center;margin-bottom:8px;" onclick="closeModal();renderSharePanel()">📤 Dolabı Paylaş</button>
+    <button class="btn btn-ghost" style="width:100%;justify-content:center;margin-bottom:8px;" onclick="closeModal();showLoadCode()">📥 Kodu Yükle</button>
+    <button class="btn btn-rose" style="width:100%;justify-content:center;" onclick="clearAll()">🗑 Tüm verileri sil</button>
+  `);
+};
+
+window.showLoadCode = () => {
+  openModal(`
+    <div class="mhdr"><div class="mtitle">📥 Kodu Yükle</div><button class="mclose" onclick="closeModal()">✕</button></div>
+    <p style="font-size:13px;color:var(--ink2);margin-bottom:14px;line-height:1.7;">
+      Sana gönderilen <b>6 haneli kodu</b> gir:
+    </p>
+    <input id="loadCode" type="text" maxlength="6"
+      style="width:100%;text-align:center;font-family:'Playfair Display',serif;font-size:36px;font-weight:600;letter-spacing:10px;text-transform:uppercase;padding:14px;border:2px solid var(--line2);border-radius:var(--r);background:var(--cream);outline:none;"
+      placeholder="A3K9X2"
+      oninput="this.value=this.value.toUpperCase().replace(/[^A-Z0-9]/g,'')"
+      onkeydown="if(event.key==='Enter')doLoadCode()">
+    <div id="loadErr" style="display:none;color:var(--rose);font-size:12px;margin-top:8px;text-align:center;"></div>
+    <div class="alert alert-amber" style="margin-top:12px;">
+      <span>⚠️</span>
+      <div style="font-size:12px;"><b>Mevcut veriler silinecek.</b></div>
+    </div>
+    <div class="ff" style="margin-top:13px;padding-top:13px;">
+      <button class="btn btn-ghost" onclick="closeModal()">İptal</button>
+      <button class="btn btn-dark" id="loadBtn" onclick="doLoadCode()">✅ Yükle</button>
+    </div>
+  `);
+  setTimeout(()=>document.getElementById('loadCode')?.focus(), 100);
+};
+
+window.doLoadCode = async () => {
+  const code = document.getElementById('loadCode')?.value.trim().toUpperCase();
+  const errEl = document.getElementById('loadErr');
+  const btn = document.getElementById('loadBtn');
+  if(!code || code.length !== 6) {
+    errEl.style.display='block'; errEl.textContent='⚠️ 6 haneli kod gir!'; return;
+  }
+  errEl.style.display='none';
+  btn.textContent='⏳ Yükleniyor...'; btn.disabled=true;
+  try {
+    const result = await window.storage.get('dolap:' + code, true); // shared=true
+    if(!result) {
+      errEl.style.display='block';
+      errEl.textContent='❌ Kod bulunamadı. Doğru yazdığından emin ol.';
+      btn.textContent='✅ Yükle'; btn.disabled=false; return;
+    }
+    const data = JSON.parse(result.value);
+    if(!Array.isArray(data.clothes)) throw new Error('Geçersiz veri');
+    clothes = data.clothes || [];
+    outfits = data.outfits || [];
+    shopping = data.shopping || [];
+    wornLog = data.wornLog || {};
+    if(data.me){ me = data.me; S.set(KEYS.user, me); document.getElementById('hname').textContent=me.name; document.getElementById('hav').textContent=me.emoji; }
+    save(); isGuest = false;
+    const photoCount = clothes.filter(c=>c.photo).length;
+    closeModal(); checkNotif();
+    toast(`✅ ${clothes.length} kıyafet ve ${photoCount} fotoğraf yüklendi!`);
+    tab('wardrobe', document.querySelectorAll('.dsk-nav button')[2]);
+  } catch(e) {
+    errEl.style.display='block';
+    errEl.textContent='❌ Yükleme başarısız: ' + (e.message||'Tekrar dene');
+    btn.textContent='✅ Yükle'; btn.disabled=false;
+  }
+};
+window.clearAll=()=>{if(!confirm('TÜM veriler silinecek. Emin misin?'))return;if(!confirm('Geri alınamaz! Devam et?'))return;clothes=[];outfits=[];shopping=[];wornLog={};save();closeModal();tab('wardrobe',document.querySelectorAll('.dsk-nav button')[2]);toast('🗑 Silindi');};
+
+// ── BOOT ──────────────────────────────────────
+init();
+</script>
+</body>
+</html>
